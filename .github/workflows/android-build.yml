@@ -30,13 +30,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Set up Android SDK
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 33
-          target: default
-          arch: x86_64
-          build-tools: '33.0.0'
+      - name: Install Android SDK command-line tools and packages
+        run: |
+          set -e
+          ANDROID_SDK_ROOT=$HOME/android-sdk
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+          curl -sS https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o /tmp/cmdline.zip
+          unzip -q /tmp/cmdline.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest || true
+          export ANDROID_SDK_ROOT="$ANDROID_SDK_ROOT"
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+          yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses || true
+          yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
       - name: Run assembleDebug
+        env:
+          ANDROID_SDK_ROOT: ${{ env.HOME }}/android-sdk
         run: ./gradlew assembleDebug --no-daemon --console=plain
