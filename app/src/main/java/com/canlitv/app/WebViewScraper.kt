@@ -70,7 +70,7 @@ fun WebViewScraper(
                     object {
                         @JavascriptInterface
                         fun onVideoUrls(jsonUrls: String) {
-                            view.post {
+                            this@apply.post {
                                 val streamUrl = extractM3u8FromJson(jsonUrls)
                                 if (streamUrl != null) {
                                     onStatus("Video etiketi bulundu: $streamUrl")
@@ -81,7 +81,7 @@ fun WebViewScraper(
 
                         @JavascriptInterface
                         fun onTokenResponse(jsonData: String) {
-                            view.post {
+                            this@apply.post {
                                 val streamUrl = extractUrlFromJson(jsonData)
                                 if (streamUrl != null) {
                                     onStatus("Secure token sonucu bulundu: $streamUrl")

@@ -33,8 +33,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.hls.HlsMediaSource
-import androidx.media3.ui.StyledPlayerView
+import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.ui.PlayerView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +82,7 @@ fun CanliTvApp() {
                 )
                 .setAllowCrossProtocolRedirects(true)
 
-            val mediaSource = HlsMediaSource.Factory(dataSourceFactory)
+            val mediaSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(MediaItem.fromUri(url))
 
             player.setMediaSource(mediaSource)
@@ -159,7 +160,7 @@ fun CanliTvApp() {
 fun StreamingPlayer(player: ExoPlayer) {
     AndroidView(
         factory = { context ->
-            StyledPlayerView(context).apply {
+            PlayerView(context).apply {
                 this.player = player
                 useController = true
                 layoutParams = android.view.ViewGroup.LayoutParams(
