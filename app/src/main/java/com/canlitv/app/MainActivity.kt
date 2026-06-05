@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
+import androidx.media3.common.RequestMetadata
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 
@@ -25,7 +26,26 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             var m3u8Link by remember { mutableStateOf("Ajan ATV'ye sızıyor...") }
-            val scraper = remember { WebViewScraper(this) { m3u8Link = it } }
+            
+            val scraper = remember { 
+                WebViewScraper(this) { link ->
+                    m3u8Link = link
+                    
+                    // ATV için Referer içeren MediaItem oluştur
+                    val mediaItem = MediaItem.Builder()
+                        .setUri(link)
+                        .setRequestMetadata(
+                            RequestMetadata.Builder()
+                                .build()
+                        )
+                        .build()
+                    
+                    // Media3 için Referer ekleme (Doğru yöntem)
+                    exoPlayer?.setMediaItems(listOf(mediaItem))
+                    exoPlayer?.prepare()
+                    exoPlayer?.play()
+                } 
+            }
 
             Column(modifier = Modifier.fillMaxSize()) {
                 Text(
@@ -46,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.weight(1f)
                 )
 
-                // Görünmez Ajan (Sadece arka planda çalışır)
+                // Görünmez Ajan
                 AndroidView(
                     factory = { scraper.webView },
                     modifier = Modifier.size(1.dp)
